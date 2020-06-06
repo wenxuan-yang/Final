@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import requests
 import seaborn as sns
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
 
 
 def process_data(paper):
@@ -92,7 +96,7 @@ def graphs(data):
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
     sns.scatterplot(x='Abdomen 2 circumference (cm)',
                     y="Percent body fat from Siri's (1956) "
-                         "equation", data=data, ax=ax1)
+                      "equation", data=data, ax=ax1)
     sns.scatterplot(x='Chest circumference (cm)',
                     y="Percent body fat from Siri's (1956) "
                       "equation", data=data, ax=ax2)
@@ -106,14 +110,45 @@ def graphs(data):
     plt.savefig('test.png')
 
 
+def linear_regression_fit(x, y):
+    reg = LinearRegression().fit(x, y)
+    print('Linear Regression score:', reg.score(x, y))
+    # print('Linear Regression coefficient:', reg.coef_)
+    # print('Linear Regression intercept:', reg.intercept_)
+    return reg
+
+
+def logistic_regression_fit(x, y):
+    lab_enc = preprocessing.LabelEncoder()
+    y_encoded = lab_enc.fit_transform(y)
+    reg = LogisticRegression(random_state=0).fit(x, y_encoded)
+    print('Logistic Regression score:', reg.score(x, y_encoded))
+    return reg
+
+
 def main():
     sns.set(font_scale=0.7)
     url = 'http://lib.stat.cmu.edu/datasets/bodyfat'
     data, columns = process_data(requests.get(url).text)
+    url_another_data = 'http://jse.amstat.org/datasets/body.dat.txt'
     calculate_bmi(data)
     print(correlation_chart(data, columns))
     print(correlation(data, 'BMI'))
     graphs(data)
+
+    x = data.drop(["Percent body fat from Siri's (1956) equation"], axis=1).to_numpy()
+    y = data["Percent body fat from Siri's (1956) equation"].to_numpy()
+    # train : dev : test = 8 : 1 : 1
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=1)
+    x_dev, x_test, y_dev, y_test = train_test_split(x_test, y_test, test_size=0.5, random_state=1)
+    # Linear Regression
+    linear_reg = linear_regression_fit(x_train, y_train)
+    print('MSE for train:', mean_squared_error(y_train, linear_reg.predict(x_train)))
+    print('MSE for dev  :', mean_squared_error(y_dev, linear_reg.predict(x_dev)))
+    # Logstic Regression
+    logistic_reg = logistic_regression_fit(x_train, y_train)
+    print('MSE for train:', mean_squared_error(y_train, logistic_reg.predict(x_train)))
+    print('MSE for dev  :', mean_squared_error(y_dev, logistic_reg.predict(x_dev)))
 
 
 if __name__ == '__main__':
