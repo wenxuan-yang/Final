@@ -78,6 +78,10 @@ def correlation_chart(data, columns):
     return all_correlation
 
 
+def calculate_bmi(data):
+    data['BMI'] = data['Weight (lbs)'] / data['Height (inches)']**2
+
+
 def graphs(data):
     """
     Plots the data
@@ -86,21 +90,30 @@ def graphs(data):
     """
     sns.set_style("white")
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
-    sns.scatterplot(x='Wrist circumference (cm)',
-                       y="Percent body fat from Siri's (1956) "
+    sns.scatterplot(x='Abdomen 2 circumference (cm)',
+                    y="Percent body fat from Siri's (1956) "
                          "equation", data=data, ax=ax1)
-    sns.scatterplot(x='Wrist circumference (cm)',
-                y='Age (years)', data=data, ax=ax2)
-    plt.xticks(rotation=-90)
+    sns.scatterplot(x='Chest circumference (cm)',
+                    y="Percent body fat from Siri's (1956) "
+                      "equation", data=data, ax=ax2)
+    sns.scatterplot(x='Hip circumference (cm)',
+                    y="Percent body fat from Siri's (1956) "
+                      "equation", data=data, ax=ax3)
+    sns.scatterplot(x='Density determined from underwater weighing',
+                    y="Percent body fat from Siri's (1956) "
+                      "equation", data=data, ax=ax4)
+    plt.show()
     plt.savefig('test.png')
 
 
 def main():
     sns.set(font_scale=0.7)
     url = 'http://lib.stat.cmu.edu/datasets/bodyfat'
-    data, columns= process_data(requests.get(url).text)
-    #graphs(data)
+    data, columns = process_data(requests.get(url).text)
+    calculate_bmi(data)
     print(correlation_chart(data, columns))
+    print(correlation(data, 'BMI'))
+    graphs(data)
 
 
 if __name__ == '__main__':
