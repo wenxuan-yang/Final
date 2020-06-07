@@ -43,6 +43,24 @@ def process_data(paper):
     return processed_data, categories
 
 
+def process_another_data(data, columns):
+    columns_lines = columns.splitlines()
+    generate_category = False
+    record_data = False
+    data
+    categories = []
+    for each in columns_lines:
+        line = each.strip()
+        if len(line) != 0:
+            if line == 'Columns     Variable':
+                generate_category = True
+            elif line == "'</PRE>', '</P>', '<P>'":
+                generate_category = False
+            elif generate_category:
+                categories.append(line)
+    print(categories)
+
+
 def correlation(data, item):
     """
     Returns the correlation coefficient base on the given column and the body
@@ -106,7 +124,6 @@ def graphs(data):
     sns.scatterplot(x='Density determined from underwater weighing',
                     y="Percent body fat from Siri's (1956) "
                       "equation", data=data, ax=ax4)
-    plt.show()
     plt.savefig('test.png')
 
 
@@ -121,13 +138,16 @@ def linear_regression_fit(x, y):
 def main():
     sns.set(font_scale=0.7)
     url = 'http://lib.stat.cmu.edu/datasets/bodyfat'
+    url_another_data = 'http://jse.amstat.org/datasets/body.dat.txt'
+    url_another_columns = 'http://jse.amstat.org/v11n2/datasets.heinz.html'
+    process_another_data(requests.get(url_another_data).text,
+                         requests.get(url_another_columns).text)
     data, columns = process_data(requests.get(url).text)
     # url_another_data = 'http://jse.amstat.org/datasets/body.dat.txt'
     calculate_bmi(data)
     # print(correlation_chart(data, columns))
     print('Correlation coefficient:', correlation(data, 'BMI'))
     graphs(data)
-
     x = data.drop(["Percent body fat from Siri's (1956) equation"], axis=1).to_numpy()
     y = data["Percent body fat from Siri's (1956) equation"].to_numpy()
     # train : dev : test = 7 : 1.5 : 1.5
