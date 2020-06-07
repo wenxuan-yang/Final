@@ -61,26 +61,6 @@ def process_another_data(data, columns):
     print(categories)
 
 
-def correlation(data, item):
-    """
-    Returns the correlation coefficient base on the given column and the body
-    fat.
-    :param data: The complete data set.
-    :param item: The column that would be used to compute.
-    :return: The correlation coefficient of the provided column and body fat.
-    """
-    x_mean = data[item].mean()
-    y_mean = data["Percent body fat from Siri's (1956) equation"].mean()
-    sxy_abbreviated = ((data[item] - x_mean) *
-                       (data["Percent body fat from Siri's (1956) equation"]
-                        - y_mean)).sum()
-    sax_abbreviated = ((data[item] - x_mean)**2).sum()
-    syy_abbreviated = ((data["Percent body fat from Siri's "
-                             "(1956) equation"] - y_mean)**2).sum()
-    r = sxy_abbreviated / np.sqrt(sax_abbreviated) / np.sqrt(syy_abbreviated)
-    return r
-
-
 def correlation_chart(data, columns):
     """
     Returns a dictionary that has all the coefficient correlation of all the
