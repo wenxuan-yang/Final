@@ -81,27 +81,26 @@ def correlation_chart(data, columns):
     return all_correlation
 
 
-def graphs(data):
+def graphs(data, all_correlation):
     """
     Plots the data
     :param data:
     :return:
     """
     sns.set_style("white")
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
-    sns.scatterplot(x='Abdomen 2 circumference (cm)',
-                    y="Percent body fat from Siri's (1956) "
-                      "equation", data=data, ax=ax1)
-    sns.scatterplot(x='Chest circumference (cm)',
-                    y="Percent body fat from Siri's (1956) "
-                      "equation", data=data, ax=ax2)
-    sns.scatterplot(x='Hip circumference (cm)',
-                    y="Percent body fat from Siri's (1956) "
-                      "equation", data=data, ax=ax3)
-    sns.scatterplot(x='Density determined from underwater weighing',
-                    y="Percent body fat from Siri's (1956) "
-                      "equation", data=data, ax=ax4)
-    plt.savefig('test.png')
+    fig, axes = plt.subplots(4,3)
+    temp = all_correlation.copy()
+    print(temp.pop()[0])
+    for i in range(4):
+        for j in range(3):
+            plotting = sns.scatterplot(x=temp.pop(0)[0],
+                            y="Percent body fat from Siri's (1956) "
+                              "equation", data=data, ax=axes[i, j])
+            plotting.set_ylabel('')
+    plt.ylabel(' ')
+    plt.subplots_adjust(hspace=0.8, wspace=0.3)
+    plt.suptitle('Body Measurements vs. Body Fat')
+    plt.savefig('test.png', dpi = 300)
 
 
 def linear_regression_fit(x, y):
@@ -120,9 +119,10 @@ def main():
     sns.set(font_scale=0.7)
     url = 'http://lib.stat.cmu.edu/datasets/bodyfat'
     data, columns = process_data(requests.get(url).text)
+    all_correlation = correlation_chart(data, columns)
+    print((all_correlation))
 
-    print(correlation_chart(data, columns))
-    graphs(data)
+    graphs(data, all_correlation)
     print(data)
     learn_data = data.drop(["Density determined from underwater weighing"], axis=1)
     x = learn_data.drop(["Percent body fat from Siri's (1956) equation"], axis=1).to_numpy()
@@ -137,8 +137,7 @@ def main():
 
     x_high_correlation = data[['Abdomen 2 circumference (cm)',
                                'Chest circumference (cm)',
-                               'Hip circumference (cm)',
-                               'Weight (lbs)']].copy()
+                               'Hip circumference (cm)']].copy()
     x_high_train, x_high_test, y_train, y_test = \
         train_test_split(x_high_correlation, y, test_size=0.3, random_state=1)
     x_high_dev, x_high_test, y_dev, y_test = \
