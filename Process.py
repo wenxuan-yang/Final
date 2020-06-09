@@ -64,12 +64,12 @@ def correlation(data, item):
 
 def correlation_chart(data, columns):
     """
-    Returns a dictionary that has all the coefficient correlation of all the
+    Returns a list of tuples that has all the coefficient correlation of all the
     columns.
     :param data: The complete data.
     :param columns: The columns in the data.
-    :return: The dictionary that contains all the correlation coefficient
-    corresponding the columns.
+    :return: The list that contains all the correlation coefficient
+    in tuple from that corresponding the columns.
     """
     all_correlation = dict()
     temp_column = columns.copy()
