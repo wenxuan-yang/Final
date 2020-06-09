@@ -1,32 +1,46 @@
 """
-Yutian Lei
-CSE163 AD
+Yutian Lei, Wenxuan Yang, Yining Liu
+CSE163
 This program test the python coding function
-from two other file hw2_manual and hw2_pandas
-with pandas library
+from two other file process and read_data
+with by using cse163_utils
 """
 
-import pandas as pd
-
-import requests
-
-from cse163_utils import assert_equals, parse
+from cse163_utils import assert_equals
 
 import Process
 
-def test_process_data(data, columns):
+from read_data import DataReader
+
+def test_read_function(url):
+    """
+    Test method for read method in read_data class with given
+    url, does not crash if it passed
+    """
+    web_data = DataReader(url)
+    data, columns = web_data.read()
+    assert_equals(True, len(data) > 0)
     assert_equals(252, len(data))
     assert_equals(15, len(columns))
     assert_equals(23, data.loc[0, 'Age (years)'])
     assert_equals('Weight (lbs)', columns[3])
+    return data, columns
 
 
 def test_correlation(data):
+    """
+    Test method for correlation method in process file with given
+    dataframe, does not crash if it passed
+    """
     assert_equals(0.62520091, Process.correlation(data, 'Hip circumference (cm)'))
     assert_equals(0.29145844, Process.correlation(data, 'Age (years)'))
     assert_equals(-0.0894953, Process.correlation(data, 'Height (inches)'))
 
 def test_correlation_chart(data, columns):
+    """
+    Test method for correlation_chart method in process file with given
+    dataframe and given list, does not crash if it passed
+    """
     test_list = [
         ('Abdomen 2 circumference (cm)', 0.813432284781049),
         ('Chest circumference (cm)', 0.7026203388938643),
@@ -48,8 +62,7 @@ def test_correlation_chart(data, columns):
 
 def main():
     url = 'http://lib.stat.cmu.edu/datasets/bodyfat'
-    data, columns = Process.process_data(requests.get(url).text)
-    test_process_data(data, columns)
+    data, columns = test_read_function(url)
     test_correlation(data)
     test_correlation_chart(data, columns)
 

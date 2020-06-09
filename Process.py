@@ -1,45 +1,21 @@
-import pandas as pd
+"""
+Yutian Lei, Wenxuan Yang, Yining Liu
+CSE163
+This program uses several libraries to analyzes
+and predicts the body fat data with machine learning.
+We scrap data from target website and use data for
+machine learning model training. Moreover, we plot
+related data for our data analyzing.
+"""
+
+
+from read_data import DataReader
 import matplotlib.pyplot as plt
 import numpy as np
-import requests
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
-
-
-def process_data(paper):
-    """
-    Returns a DataFrame to represent the data obtained from the paper.
-    :param paper: The paper obtained online.
-    :return: The DataFrame containing all the data in the paper.
-    """
-    lines = paper.splitlines()
-    generate_category = False
-    record_data = False
-    categories = []
-    data = []
-    for each in lines:
-        line = each.strip()
-        if len(line) != 0:
-            if line == 'The variables listed below, from left to right, ' \
-                       'are:':
-                generate_category = True
-            elif line == '(Measurement standards are apparently those ' \
-                         'listed in Benhke and Wilmore':
-                generate_category = False
-            elif generate_category:
-                categories.append(line)
-            if line == 'Principles of the Conditioning Process_, Allyn ' \
-                       'and Bacon, Inc., Boston.':
-                record_data = True
-            elif line == 'Roger W. Johnson':
-                record_data = False
-            elif record_data:
-                data.append(line.split())
-    processed_data = pd.DataFrame(data, columns=categories)
-    processed_data = processed_data.astype(float)
-    return processed_data, categories
 
 
 def correlation(data, item):
@@ -104,6 +80,13 @@ def graphs(data, all_correlation):
 
 
 def linear_regression_fit(x, y):
+    """
+    Calculate the score from given x and y dataset by using
+    sklearn library
+    :param x: dataset
+    :param y: dataset
+    :return:
+    """
     reg = LinearRegression().fit(x, y)
     print('Linear Regression score:', reg.score(x, y))
     # print('Linear Regression coefficient:', reg.coef_)
@@ -118,10 +101,11 @@ def linear_regression_fit(x, y):
 def main():
     sns.set(font_scale=0.7)
     url = 'http://lib.stat.cmu.edu/datasets/bodyfat'
-    data, columns = process_data(requests.get(url).text)
+    web_data = DataReader(url)
+    data, columns = web_data.read()
+
     all_correlation = correlation_chart(data, columns)
     print((all_correlation))
-
     graphs(data, all_correlation)
     print(data)
     learn_data = data.drop(["Density determined from underwater weighing"], axis=1)
