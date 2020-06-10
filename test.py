@@ -20,6 +20,7 @@ def test_read_function(url):
     web_data = DataReader(url)
     data, columns = web_data.read()
     assert_equals(True, len(data) > 0)
+    assert_equals(True, len(columns) > 0)
     assert_equals(252, len(data))
     assert_equals(15, len(columns))
     assert_equals(23, data.loc[0, 'Age (years)'])
@@ -60,11 +61,26 @@ def test_correlation_chart(data, columns):
     assert_equals(test_list, Process.correlation_chart(data, columns))
 
 
+def test_high_correlation():
+    """
+    Test method for high_correlation method in process file,
+    does not crash if it passed
+    """
+    test_list1 = [
+        ('Abdomen 2 circumference (cm)', 0.813432284781049),
+        ('Hip circumference (cm)', 0.6252009175086622),
+        ('Weight (lbs)', 0.6124140022026474),
+        ('Biceps (extended) circumference (cm)', 0.49327112589161576),
+    ]
+    test_list = ['Abdomen 2 circumference (cm)', 'Hip circumference (cm)', 'Weight (lbs)']
+    assert_equals(test_list, test_list1)
+
 def main():
     url = 'http://lib.stat.cmu.edu/datasets/bodyfat'
     data, columns = test_read_function(url)
     test_correlation(data)
     test_correlation_chart(data, columns)
+    test_high_correlation()
 
 
 if __name__ == '__main__':

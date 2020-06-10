@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 
@@ -59,12 +60,12 @@ def correlation_chart(data, columns):
 
 def graphs(data, all_correlation):
     """
-    Plots the data
+    Plots the data in png form
     :param data:
     :return:
     """
     sns.set_style("white")
-    fig, axes = plt.subplots(4,3)
+    fig, axes = plt.subplots(4,3,figsize=(15,10))
     temp = all_correlation.copy()
     print(temp.pop()[0])
     for i in range(4):
@@ -72,10 +73,10 @@ def graphs(data, all_correlation):
             plotting = sns.scatterplot(x=temp.pop(0)[0],
                             y="Percent body fat from Siri's (1956) "
                               "equation", data=data, ax=axes[i, j])
-            plotting.set_ylabel('')
-    plt.ylabel(' ')
-    plt.subplots_adjust(hspace=0.8, wspace=0.3)
-    plt.suptitle('Body Measurements vs. Body Fat')
+            plotting.set_ylabel('Percent Body Fat', fontsize=10)
+    plt.ylabel('Percent Body Fat', fontsize=10)
+    plt.subplots_adjust(hspace=0.4)
+    plt.suptitle('Body Measurements vs. Body Fat Percentage')
     plt.savefig('test.png', dpi = 300)
 
 
@@ -87,50 +88,58 @@ def linear_regression_fit(x, y):
     :param y: dataset
     :return:
     """
-    reg = LinearRegression().fit(x, y)
-    print('Linear Regression score:', reg.score(x, y))
-    # print('Linear Regression coefficient:', reg.coef_)
-    # print('Linear Regression intercept:', reg.intercept_)
-    return reg
+    model = LinearRegression().fit(x, y)
+    print('Linear Regression score:', model.score(x, y))
+    return model
 
-
-#def all_data_regression(data):
-
+def high_correlation(data):
+    """
+    Returns a list contains body parts that has high
+    correlation coefficient value with percent body
+    fat from the given data
+    """
+    correlation_list = []
+    for pair in data:
+        if (pair[1] >= 0.5) or (pair[1] <= -0.5):
+            correlation_list.append(pair[0])
+    correlation_list.remove('Density determined from underwater weighing')
+    return correlation_list
 
 
 def main():
     sns.set(font_scale=0.7)
+    # Process Data
     url = 'http://lib.stat.cmu.edu/datasets/bodyfat'
     web_data = DataReader(url)
     data, columns = web_data.read()
-
+    # Plotting
     all_correlation = correlation_chart(data, columns)
-    print((all_correlation))
     graphs(data, all_correlation)
-    print(data)
-    learn_data = data.drop(["Density determined from underwater weighing"], axis=1)
-    x = learn_data.drop(["Percent body fat from Siri's (1956) equation"], axis=1).to_numpy()
+    x = data.loc[:, 'Age (years)':'Wrist circumference (cm)']
     y = data["Percent body fat from Siri's (1956) equation"].to_numpy()
-    # train : dev : test = 7 : 1.5 : 1.5
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=1)
-    x_dev, x_test, y_dev, y_test = train_test_split(x_test, y_test, test_size=0.5, random_state=1)
     # Linear Regression
-    linear_reg = linear_regression_fit(x_train, y_train)
-    print('MSE for train:', mean_squared_error(y_train, linear_reg.predict(x_train)))
-    print('MSE for dev  :', mean_squared_error(y_dev, linear_reg.predict(x_dev)))
-
-    x_high_correlation = data[['Abdomen 2 circumference (cm)',
-                               'Chest circumference (cm)',
-                               'Hip circumference (cm)']].copy()
-    x_high_train, x_high_test, y_train, y_test = \
-        train_test_split(x_high_correlation, y, test_size=0.3, random_state=1)
-    x_high_dev, x_high_test, y_dev, y_test = \
-        train_test_split(x_high_test, y_test, test_size=0.5, random_state=1)
-    high_correlation_regression = linear_regression_fit(x_high_train, y_train)
-    print('MSE for high train:',
-          mean_squared_error(y_train, high_correlation_regression.predict(x_high_train)))
-    print('MSE for high dev  :',
-          mean_squared_error(y_dev, high_correlation_regression.predict(x_high_dev)))
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=1)
+    print(all_correlation)
+    model = DecisionTreeRegressor()
+    model.fit(x_train, y_train)
+    linear_reg_model = linear_regression_fit(x_train, y_train)
+    print('MSE for linear train:', mean_squared_error(y_train, linear_reg_model.predict(x_train)))
+    print('MSE for linear test:', mean_squared_error(y_test, linear_reg_model.predict(x_test)))
+    print('MSE for decisiontree train:', mean_squared_error(y_train, model.predict(x_train)))
+    print('MSE for decisiontree test:', mean_squared_error(y_test, model.predict(x_test)))
+    # High correlation part
+    x_high_correlation = data[high_correlation(all_correlation)].copy()
+    x_high_train, x_high_test, y_high_train, y_high_test = \
+        train_test_split(x_high_correlation, y, test_size=0.4, random_state=1)
+    high_model = DecisionTreeRegressor()
+    high_model.fit(x_high_train, y_high_train)
+    high_correlation_model = linear_regression_fit(x_high_train, y_high_train)
+    print('MSE for high correlation train:',
+          mean_squared_error(y_high_train, high_correlation_model.predict(x_high_train)))
+    print('MSE for high correlation test:',
+          mean_squared_error(y_high_test, high_correlation_model.predict(x_high_test)))
+    print('MSE for high correlation decisiontree train:', mean_squared_error(y_high_train, high_model.predict(x_high_train)))
+    print('MSE for high correlation decisiontree test:', mean_squared_error(y_high_test, high_model.predict(x_high_test)))
 
 
 if __name__ == '__main__':
