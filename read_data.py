@@ -24,13 +24,14 @@ class DataReader:
         """
         self._url = _url
 
-
     def read(self):
         """
-        Returns a DataFrame and a list with the data obtained from the website of
-        given url.
-        :return: The DataFrame containing the numeric data we need from the web.
-                The list contains the column names of the data we collected from web.
+        Returns a DataFrame and a list with the data
+        obtained from the website of given url.
+        :return: The DataFrame containing the numeric
+                data we need from the web.
+                The list contains the column names
+                of the data we collected from web.
         """
         _paper = requests.get(self._url).text
         _lines = _paper.splitlines()
@@ -59,4 +60,3 @@ class DataReader:
         _processed_data = pd.DataFrame(_data, columns=_categories)
         _processed_data = _processed_data.astype(float)
         return _processed_data, _categories
-

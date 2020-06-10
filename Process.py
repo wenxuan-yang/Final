@@ -41,8 +41,8 @@ def correlation(data, item):
 
 def correlation_chart(data, columns):
     """
-    Returns a list of tuples that has all the coefficient correlation of all the
-    columns.
+    Returns a list of tuples that has all the
+    coefficient correlation of all the columns.
     :param data: The complete data.
     :param columns: The columns in the data.
     :return: The list that contains all the correlation coefficient
@@ -65,19 +65,21 @@ def graphs(data, all_correlation):
     :return:
     """
     sns.set_style("white")
-    fig, axes = plt.subplots(4,3,figsize=(15,10))
+    fig, axes = plt.subplots(4, 3, figsize=(15, 10))
     temp = all_correlation.copy()
     print(temp.pop()[0])
     for i in range(4):
         for j in range(3):
-            plotting = sns.scatterplot(x=temp.pop(0)[0],
-                            y="Percent body fat from Siri's (1956) "
-                              "equation", data=data, ax=axes[i, j])
+            plotting = sns.scatterplot(
+                x=temp.pop(0)[0],
+                y="Percent body fat from Siri's (1956) "
+                "equation", data=data, ax=axes[i, j]
+            )
             plotting.set_ylabel('Percent Body Fat', fontsize=10)
     plt.ylabel('Percent Body Fat', fontsize=10)
     plt.subplots_adjust(hspace=0.4)
     plt.suptitle('Body Measurements vs. Body Fat Percentage')
-    plt.savefig('test.png', dpi = 300)
+    plt.savefig('test.png', dpi=300)
 
 
 def linear_regression_fit(x, y):
@@ -91,6 +93,7 @@ def linear_regression_fit(x, y):
     model = LinearRegression().fit(x, y)
     print('Linear Regression score:', model.score(x, y))
     return model
+
 
 def high_correlation(data):
     """
@@ -118,15 +121,28 @@ def main():
     x = data.loc[:, 'Age (years)':'Wrist circumference (cm)']
     y = data["Percent body fat from Siri's (1956) equation"].to_numpy()
     # Linear Regression
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=1)
+    x_train, x_test, y_train, y_test = \
+        train_test_split(x, y, test_size=0.4, random_state=1)
     print(all_correlation)
     model = DecisionTreeRegressor()
     model.fit(x_train, y_train)
     linear_reg_model = linear_regression_fit(x_train, y_train)
-    print('MSE for linear train:', mean_squared_error(y_train, linear_reg_model.predict(x_train)))
-    print('MSE for linear test:', mean_squared_error(y_test, linear_reg_model.predict(x_test)))
-    print('MSE for decisiontree train:', mean_squared_error(y_train, model.predict(x_train)))
-    print('MSE for decisiontree test:', mean_squared_error(y_test, model.predict(x_test)))
+    print(
+        'MSE for linear train:',
+        mean_squared_error(y_train, linear_reg_model.predict(x_train))
+    )
+    print(
+        'MSE for linear test:',
+        mean_squared_error(y_test, linear_reg_model.predict(x_test))
+    )
+    print(
+        'MSE for decisiontree train:',
+        mean_squared_error(y_train, model.predict(x_train))
+    )
+    print(
+        'MSE for decisiontree test:',
+        mean_squared_error(y_test, model.predict(x_test))
+    )
     # High correlation part
     x_high_correlation = data[high_correlation(all_correlation)].copy()
     x_high_train, x_high_test, y_high_train, y_high_test = \
@@ -134,12 +150,26 @@ def main():
     high_model = DecisionTreeRegressor()
     high_model.fit(x_high_train, y_high_train)
     high_correlation_model = linear_regression_fit(x_high_train, y_high_train)
-    print('MSE for high correlation train:',
-          mean_squared_error(y_high_train, high_correlation_model.predict(x_high_train)))
-    print('MSE for high correlation test:',
-          mean_squared_error(y_high_test, high_correlation_model.predict(x_high_test)))
-    print('MSE for high correlation decisiontree train:', mean_squared_error(y_high_train, high_model.predict(x_high_train)))
-    print('MSE for high correlation decisiontree test:', mean_squared_error(y_high_test, high_model.predict(x_high_test)))
+    print(
+        'MSE for high correlation train:',
+        mean_squared_error(
+            y_high_train, high_correlation_model.predict(x_high_train)
+        )
+    )
+    print(
+        'MSE for high correlation test:',
+        mean_squared_error(
+            y_high_test, high_correlation_model.predict(x_high_test)
+        )
+    )
+    print(
+        'MSE for high correlation decisiontree train:',
+        mean_squared_error(y_high_train, high_model.predict(x_high_train))
+    )
+    print(
+        'MSE for high correlation decisiontree test:',
+        mean_squared_error(y_high_test, high_model.predict(x_high_test))
+    )
 
 
 if __name__ == '__main__':

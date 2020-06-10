@@ -12,6 +12,7 @@ import Process
 
 from read_data import DataReader
 
+
 def test_read_function(url):
     """
     Test method for read method in read_data class with given
@@ -30,12 +31,16 @@ def test_read_function(url):
 
 def test_correlation(data):
     """
-    Test method for correlation method in process file with given
+    Test method for correlation method in
+    process file with given
     dataframe, does not crash if it passed
     """
-    assert_equals(0.62520091, Process.correlation(data, 'Hip circumference (cm)'))
+    assert_equals(0.62520091, Process.correlation(
+        data, 'Hip circumference (cm)'
+    ))
     assert_equals(0.29145844, Process.correlation(data, 'Age (years)'))
     assert_equals(-0.0894953, Process.correlation(data, 'Height (inches)'))
+
 
 def test_correlation_chart(data, columns):
     """
@@ -63,7 +68,8 @@ def test_correlation_chart(data, columns):
 
 def test_high_correlation():
     """
-    Test method for high_correlation method in process file,
+    Test method for high_correlation
+    method in process file,
     does not crash if it passed
     """
     test_list1 = [
@@ -72,8 +78,13 @@ def test_high_correlation():
         ('Weight (lbs)', 0.6124140022026474),
         ('Biceps (extended) circumference (cm)', 0.49327112589161576),
     ]
-    test_list = ['Abdomen 2 circumference (cm)', 'Hip circumference (cm)', 'Weight (lbs)']
+    test_list = [
+        'Abdomen 2 circumference (cm)',
+        'Hip circumference (cm)',
+        'Weight (lbs)'
+    ]
     assert_equals(test_list, test_list1)
+
 
 def main():
     url = 'http://lib.stat.cmu.edu/datasets/bodyfat'
