@@ -83,7 +83,7 @@ def test_high_correlation():
         'Hip circumference (cm)',
         'Weight (lbs)'
     ]
-    assert_equals(test_list, test_list1)
+    assert_equals(test_list, Process.high_correlation(test_list1))
 
 
 def main():

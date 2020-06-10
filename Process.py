@@ -102,10 +102,12 @@ def high_correlation(data):
     fat from the given data
     """
     correlation_list = []
+    name = 'Density determined from underwater weighing'
     for pair in data:
         if (pair[1] >= 0.5) or (pair[1] <= -0.5):
             correlation_list.append(pair[0])
-    correlation_list.remove('Density determined from underwater weighing')
+    if name in correlation_list:
+        correlation_list.remove(name)
     return correlation_list
 
 
@@ -123,7 +125,6 @@ def main():
     # Linear Regression
     x_train, x_test, y_train, y_test = \
         train_test_split(x, y, test_size=0.4, random_state=1)
-    print(all_correlation)
     model = DecisionTreeRegressor()
     model.fit(x_train, y_train)
     linear_reg_model = linear_regression_fit(x_train, y_train)
